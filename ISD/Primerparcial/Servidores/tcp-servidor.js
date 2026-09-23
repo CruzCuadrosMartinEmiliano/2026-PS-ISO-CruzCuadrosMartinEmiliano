@@ -1,27 +1,36 @@
-
 const net = require('net');
 
-const PUERTO = process.env.PUERTO || 5000;
+const PUERTO =  5000;
 
-const servidor = net.createServer((socket)=> {
-    const cliente =`${socket.remoteAddress}:${socket.remotePort}`// con esto optienes la direccion ip del cliente
-    // aqui el momento de conexion solo se dispara en el momento en que el cliente y el servidor establecen three-ay a traves del handshake(el aprenton de manos es el moento en que el cliente realiza una peticion, envia IP,puerto Datagrama y saluda al servidor, el servidor le responde creando la sesión)
-    console.log(`[TCP] coneccion establecida con el cliente ${cliente}`);
+const servidor = net.createServer((socket) => {
+    const cliente = `${socket.remoteAddress}:${socket.remotePort}`;
+    // Aqui el evento de conexion solo se dispara en el momento en que cliente y servidor establecen three-way a traves del handshake (el apreton de manos es el momento en que el cliente realiza una petición, envia IP, Puerto, Datagrama y saluda al servidor, el servidor le responde creando la sesión) 
+    console.log(`[TCP] Conexion Establecida con el Cliente ${cliente}`);
 
-    socket.on('data', (datos)=>{
+    socket.on('data', (datos) => {
         const crudo = datos.toString();
-        //TCP es un flujo de byrtes entonces nosotros en el socket le vamosa a transformar en cadenas
+        //TCP es un flujo de bytes entonces nosotros en el socket lo vamos a transformar en cadenas
+        console.log(`[TCP] Datos crudos asi crudisimos: ${datos.length} bytes: ${JSON.stringify(crudo)}`);
 
-        console.log(`${datos.length} bytes: ${JSON.stringify(crudo)}`);
-        //trim sirve para eliminar espacios en blanco el split sirve para el acomodo de datos 
-        const lineas = crudo.split('\n').map((l)=> l.trim()).filter(Boolean);
-        //sirve para cadenas
-        lineas.forEach((linea) =>{console.log(`[TCP] Mensaje: "${linea}"`);
-    })
-    
+        const lineas = crudo.split('\n').map((l) => l.trim()).filter(Boolean);
+
+        lineas.forEach((linea) => {
+            console.log(`[TCP] Mensaje: "${linea}"`);
+            socket.write(`Eco TCP: ${linea}\n`);
+        });
+
     });
-    socket.on('error',(error)=>{
-        console.log(`[TCP] Error con: ${cliente}`, error.message)
-    })
-    
-});// te deja compartir recursos
+
+    socket.on('close', () => {
+        console.log(`[TCP] Conexion Cerrada con el Cliente: ${cliente}`);
+    });
+
+    socket.on('error', (error) => {
+        console.log(`[TCP] Error con : ${cliente}`, error.message);
+    });
+});
+
+servidor.listen(PUERTO, () => {
+    console.log(`Servidor inicializado en: ${PUERTO}`);
+    console.log('Prueba');
+});
