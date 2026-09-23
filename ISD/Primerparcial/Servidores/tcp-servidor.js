@@ -18,6 +18,10 @@ const servidor = net.createServer((socket)=> {
         //sirve para cadenas
         lineas.forEach((linea) =>{console.log(`[TCP] Mensaje: "${linea}"`);
     })
-    socket.on('error
+    
+    });
+    socket.on('error',(error)=>{
+        console.log(`[TCP] Error con: ${cliente}`, error.message)
     })
+    
 });// te deja compartir recursos
